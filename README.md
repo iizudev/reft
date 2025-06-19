@@ -2,7 +2,7 @@
 
 ## The Problem
 
-Rust's `AsRef<T>` (as well as `AsMut<T>`) isn't for `&T` (or `&mut T`).
+Rust's `AsRef<T>` (as well as `AsMut<T>`) isn't implemented for `&T` (or `&mut T`).
 
 Rust's borrowing system is powerful, but sometimes we need to abstract over references without tying our code to &T
 
