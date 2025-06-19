@@ -1,6 +1,40 @@
 # ref
 
-Ref
+## The Problem
+
+Rust's `AsRef<T>` (as well as `AsMut<T>`) isn't for `&T` (or `&mut T`).
+
+Rust's borrowing system is powerful, but sometimes we need to abstract over references without tying our code to &T
+
+```rust
+struct MyStruct;
+
+fn do_something<T: AsRef<MyStruct>>(t: T) { 
+    todo!("do something very generic")
+}
+
+fn main() {
+    let t = MyStruct;
+
+    do_something(&t); // -> Won't compile, since AsRef is not implemented for &MyStruct!
+    do_something(reft::Ref::new(&t)); // -> Now works!
+}
+```
+
+## How to use
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+reft = "*" # check for the latest version at crates.io
+```
+
+Or run:
+
+```bash
+cargo add reft
+```
 
 ## How to contribute
 
