@@ -1,6 +1,6 @@
 [package]
 name = "reft"
-version = "0.0.0"
+version = "0.2.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 description = "Ref and Mut wrappers that implement AsRef and AsMut for any given &T"
