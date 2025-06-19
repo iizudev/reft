@@ -3,7 +3,7 @@
 //! Turns `&T` into `AsRef<T>` and `&mut T` into `AsMut<T>` with zero cost.
 //! Perfect for generics that need trait bounds on foreign types.
 
-use core::marker::PhantomData;
+use core::{clone::Clone, marker::PhantomData};
 
 /// Immutable reference with guaranteed `AsRef<T>` impl.  
 /// Works on _any_ type, including those you don't control.
@@ -14,6 +14,7 @@ pub struct Ref<'a, T: ?Sized>(*const T, PhantomData<&'a T>);
 pub struct Mut<'a, T: ?Sized>(*mut T, PhantomData<&'a T>);
 
 /// Owned data with `AsRef<T>` + `AsMut<T>` impls.
+#[derive(Clone, Copy)]
 pub struct Own<T: Sized>(T);
 
 impl<'a, T: ?Sized> Ref<'a, T> {
@@ -95,6 +96,13 @@ impl<'a, T: ?Sized> AsRef<T> for Ref<'a, T> {
     }
 }
 
+impl<'a, T: ?Sized> Clone for Ref<'a, T> {
+    #[inline(always)]
+    fn clone(&self) -> Self {
+        Self::new(self.get())
+    }
+}
+
 impl<'a, T: ?Sized> AsRef<T> for Mut<'a, T> {
     #[inline(always)]
     fn as_ref(&self) -> &T {
@@ -110,12 +118,14 @@ impl<'a, T: ?Sized> AsMut<T> for Mut<'a, T> {
 }
 
 impl<T: Sized> AsRef<T> for Own<T> {
+    #[inline(always)]
     fn as_ref(&self) -> &T {
         self.get()
     }
 }
 
 impl<T: Sized> AsMut<T> for Own<T> {
+    #[inline(always)]
     fn as_mut(&mut self) -> &mut T {
         self.get_mut()
     }
