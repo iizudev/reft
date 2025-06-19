@@ -5,5 +5,5 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 description = "Ref and Mut wrappers that implement AsRef and AsMut for any given &T"
 authors = ["iizudev <izudev@yandex.ru>"]
-categories = []
-keywords = []
+categories = ["memory-management", "no-std", "rust-patterns"]
+keywords = ["generics", "references", "no-std"]
