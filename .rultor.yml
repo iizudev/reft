@@ -1,0 +1,31 @@
+architect:
+  - iizudev
+assets:
+  crates-io.env: iizudev/.rultor#crates-io.env
+env:
+  CARGO_TERM_COLOR: never
+  RUSTFLAGS: -Dwarnings
+install: |
+  source /home/r/crates-io.env
+merge:
+  script: |
+    cargo test --lib --all-features --verbose
+    cargo clippy --all-targets --all-features
+release:
+  script: |
+    [[ "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+    VERSION="${tag#v}"
+    RELEASE_BRANCH="release-v${VERSION}"
+
+    git checkout -b ${RELEASE_BRANCH}
+    sed -i.bak "s/^version = .*/version = \"${VERSION}\"/" Cargo.toml && rm Cargo.toml.bak
+    grep -q "version = \"${VERSION}\"" Cargo.toml
+    git commit -am "bump version to ${VERSION}" || echo "nothing to commit?"
+    git checkout main
+    git push origin ${RELEASE_BRANCH}
+    git merge
+    git push origin main
+
+    cargo test --lib --all-features --verbose
+    cargo publish --token ${IIZUDEV_CRATES_IO_TOKEN}
+
