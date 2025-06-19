@@ -13,6 +13,9 @@ pub struct Ref<'a, T: ?Sized>(*const T, PhantomData<&'a T>);
 /// Like `&mut T`, but plays nice with trait bounds.
 pub struct Mut<'a, T: ?Sized>(*mut T, PhantomData<&'a T>);
 
+/// Owned data with `AsRef<T>` + `AsMut<T>` impls.
+pub struct Own<T: Sized>(T);
+
 impl<'a, T: ?Sized> Ref<'a, T> {
     /// Creates a new `Ref` from the provided reference.
     #[inline(always)]
@@ -59,6 +62,32 @@ impl<'a, T: ?Sized> Mut<'a, T> {
     }
 }
 
+impl<T: Sized> Own<T> {
+    /// Creates a `Own` with the provided inner.
+    #[inline(always)]
+    pub const fn new(inner: T) -> Self {
+        Self(inner)
+    }
+
+    /// Returns an immutable reference to the inner data.
+    #[inline(always)]
+    pub const fn get(&self) -> &T {
+        &self.0
+    }
+
+    /// Returns a **mutable** reference to the inner data.
+    #[inline(always)]
+    pub const fn get_mut(&mut self) -> &mut T {
+        &mut self.0
+    }
+
+    /// Returns the inner data, consuming the wrapper.
+    #[inline(always)]
+    pub fn into_inner(self) -> T {
+        self.0
+    }
+}
+
 impl<'a, T: ?Sized> AsRef<T> for Ref<'a, T> {
     #[inline(always)]
     fn as_ref(&self) -> &T {
@@ -75,6 +104,18 @@ impl<'a, T: ?Sized> AsRef<T> for Mut<'a, T> {
 
 impl<'a, T: ?Sized> AsMut<T> for Mut<'a, T> {
     #[inline(always)]
+    fn as_mut(&mut self) -> &mut T {
+        self.get_mut()
+    }
+}
+
+impl<T: Sized> AsRef<T> for Own<T> {
+    fn as_ref(&self) -> &T {
+        self.get()
+    }
+}
+
+impl<T: Sized> AsMut<T> for Own<T> {
     fn as_mut(&mut self) -> &mut T {
         self.get_mut()
     }
